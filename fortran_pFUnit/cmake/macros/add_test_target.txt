@@ -92,8 +92,8 @@ macro( add_test_target target_subdirectory test_type )
   if( EXISTS "${runner_file}" )
     # command to run test
     file( APPEND ${runner_file} "./${target_name} -name ${target_name}" )
-    file( APPEND ${runner_file} "-xml ${target_name}.xml" )
-    file( APPEND ${runner_file} "-max-timeout-duration ${max_time} -robust\n" )
+    file( APPEND ${runner_file} " -xml ${target_name}.xml" )
+    file( APPEND ${runner_file} " -max-timeout-duration ${max_time} -robust\n" )
 
   else()
     # header info
@@ -101,8 +101,8 @@ macro( add_test_target target_subdirectory test_type )
 
     # command to run test
     file( APPEND ${runner_file} "./${target_name} -name ${target_name}" )
-    file( APPEND ${runner_file} "-xml ${target_name}.xml" )
-    file( APPEND ${runner_file} "-max-timeout-duration ${max_time} -robust\n" )
+    file( APPEND ${runner_file} " -xml ${target_name}.xml" )
+    file( APPEND ${runner_file} " -max-timeout-duration ${max_time} -robust\n" )
 
   endif()
 
