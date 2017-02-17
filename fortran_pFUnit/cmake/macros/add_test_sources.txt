@@ -1,0 +1,21 @@
+macro (add_test_sources test_prefix)
+
+  # Get relative file path
+  file( RELATIVE_PATH _relPath
+        "${CMAKE_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}")
+
+  # Append sources to CMake variable list of sources
+  foreach( _src ${ARGN} )
+    if (_relPath)
+      list( APPEND ${test_prefix}_sources "${_relPath}/${_src}" )
+    else()
+      list( APPEND ${test_prefix}_sources "${_src}" )
+    endif()
+  endforeach()
+
+  # If path is relative propagate up
+  if (_relPath)
+    set( ${test_prefix}_sources ${${test_prefix}_sources} PARENT_SCOPE )
+  endif()
+
+endmacro()

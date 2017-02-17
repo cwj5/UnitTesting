@@ -1,0 +1,109 @@
+macro( add_test_target target_subdirectory test_type )
+
+  # Set target name
+  if ( ${ARGV1} MATCHES "unit" )
+    set( target_name unittest_${ARGV0} )
+    set( runner_file ${CMAKE_BINARY_DIR}/bin/unittest.sh )
+    set( testing_dir unit_testing )
+    set( max_time 10 )
+
+  else()
+    message(SEND_ERROR "Invalid test type. Only supported type in 'unit'")
+  endif()
+
+  set( TEST_DIR ${CMAKE_BINARY_DIR}/generated/test/${testing_dir}/${ARGV0} )
+
+  # Create folder for parsed test files in the build directory
+  file( MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/generated/test )
+  file( MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/generated/test/${testing_dir} )
+  file( MAKE_DIRECTORY ${TEST_DIR} )
+
+  # Remove old input file for including tests
+  file( REMOVE ${TEST_DIR}/testSuites.inc )
+
+  # Include the directory for the .inc file and the pfunit module
+  include_directories( ${TEST_DIR} )
+  include_directories( ${PFUNIT}/mod )
+
+
+#=============================================================================80
+# Loop through each test file and do the following:
+#   1 - process with pFUnitParser
+#   2 - generate list of .F90 files with appropriate DEPENDS
+#=============================================================================80
+  set(_test_sources)
+  foreach( _test ${ARGN} )
+
+    # get filename w/o extension
+    get_filename_component( filename ${_test} NAME_WE )
+
+    # get directory for the file
+    get_filename_component( filedir ${_test} DIRECTORY )
+
+    # Preprocess file
+    add_custom_command(
+      OUTPUT ${TEST_DIR}/${filename}.F90
+      COMMAND ${PFUNIT}/bin/pFUnitParser.py
+              ${CMAKE_SOURCE_DIR}/${filedir}/${filename}.pf
+              ${TEST_DIR}/${filename}.F90
+      DEPENDS ${CMAKE_SOURCE_DIR}/${filedir}/${filename}.pf
+    )
+
+    # Add .F90 to sources
+    set( _test_sources ${_test_sources} ${TEST_DIR}/${filename}.F90 )
+
+    # Add test to testing suite
+    file(
+      APPEND ${TEST_DIR}/testSuites.inc
+      "ADD_TEST_SUITE(${filename}_suite)\n"
+    )
+
+  endforeach()
+
+  # Add pFUnit's driver as a source
+  set_source_files_properties( 
+    ${PFUNIT}/include/driver.F90 PROPERTIES 
+                                 GENERATED 1
+  )
+
+#=============================================================================80
+# Define test target and link with pfunit and libsensei
+#=============================================================================80
+  add_executable( ${target_name} ${PFUNIT}/include/driver.F90 ${_test_sources} )
+  target_link_libraries( ${target_name} ${PFUNIT}/lib/libpfunit.a sample )
+
+  set_target_properties(
+    ${target_name} PROPERTIES
+                   COMPILE_FLAGS "-DBUILD_ROBUST=True"
+  )
+
+#=============================================================================80
+# Add test that can be run with 'make test' or 'ctest'
+#=============================================================================80
+  add_test(
+    NAME ${target_name}
+    COMMAND $<TARGET_FILE:${target_name}>
+            -xml ${target_name}.xml -max-timeout_duration ${maxtime} -robust
+  )
+
+#=============================================================================80
+# Add test to shell script
+#=============================================================================80
+  if( EXISTS "${runner_file}" )
+    # command to run test
+    file( APPEND ${runner_file} "./${target_name} -name ${target_name}" )
+    file( APPEND ${runner_file} "-xml ${target_name}.xml" )
+    file( APPEND ${runner_file} "-max-timeout-duration ${max_time} -robust\n" )
+
+  else()
+    # header info
+    file( APPEND ${runner_file} "#!/bin/bash\n" )
+
+    # command to run test
+    file( APPEND ${runner_file} "./${target_name} -name ${target_name}" )
+    file( APPEND ${runner_file} "-xml ${target_name}.xml" )
+    file( APPEND ${runner_file} "-max-timeout-duration ${max_time} -robust\n" )
+
+  endif()
+
+endmacro()

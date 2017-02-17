@@ -1,0 +1,21 @@
+macro (add_lib_sources)
+
+  # Get relative file path
+  file( RELATIVE_PATH _relPath
+        "${CMAKE_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}")
+
+  # Append sources to CMake variable list of sources
+  foreach( _src ${ARGN} )
+    if (_relPath)
+      list( APPEND LIB_SRCS "${_relPath}/${_src}" )
+    else()
+      list( APPEND LIB_SRCS "${_src}" )
+    endif()
+  endforeach()
+
+  # If path is relative propagate up
+  if (_relPath)
+    set( LIB_SRCS ${LIB_SRCS} PARENT_SCOPE )
+  endif()
+
+endmacro()

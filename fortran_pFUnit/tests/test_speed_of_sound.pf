@@ -1,0 +1,38 @@
+module test_speed_of_sound
+
+  use set_precision, only : dp
+  use pfunit_mod
+
+  implicit none
+
+  real(dp), parameter :: toler = 1.0e-14_dp
+
+contains
+
+@test
+  subroutine speed_of_sound_test
+
+    use fluid_constants, only : gamma, set_fluid_constants
+
+    real(dp) :: a, a_expected, rho, p
+
+    continue
+
+! set up pg fluid constants
+    gamma = 1.4_dp
+    call set_fluid_constants
+
+    rho = 1.225_dp
+    p   = 101325.0_dp
+
+    a_expected = 340.29399054347107_dp
+
+    a = speed_of_sound(p, rho)
+
+    @assertequal(a_expected, a, toler)
+
+  end subroutine speed_of_sound_test
+
+  include 'speed_of_sound.f90'
+
+end module test_speed_of_sound
