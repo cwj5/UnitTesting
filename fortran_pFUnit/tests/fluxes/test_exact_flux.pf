@@ -1,0 +1,36 @@
+!============================== exact_wall_test ==============================80
+!
+! Given zero velocity, there should be no convective flux, just a pressure flux
+!
+!=============================================================================80
+@test
+subroutine exact_wall_test
+
+  use set_precision,   only : dp
+  use set_constants,   only : one, three
+  use fluid_constants, only : gamma, set_fluid_constants
+  use fluxes,          only : flux_exact
+  use pfunit_mod
+
+  real(dp), dimension(3) :: q, flux_expected, flux
+
+  real(dp) :: toler = 1D-14
+
+  continue
+
+  ! set up fluid constants
+  gamma = 1.4_dp
+  call set_fluid_constants
+
+  q = [1.225_dp, 0.0_dp, 101325.0_dp]
+
+  flux_expected = [ 0.0_dp, 101325.0_dp, 0.0_dp ]
+
+  flux = flux_exact(q)
+
+  @assertEqual(flux_expected(1), flux(1), toler)
+  @assertEqual(flux_expected(2), flux(2), toler)
+  @assertEqual(flux_expected(3), flux(3), toler)
+
+end subroutine exact_wall_test
+
