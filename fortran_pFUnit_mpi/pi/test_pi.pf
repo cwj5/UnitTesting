@@ -1,0 +1,20 @@
+@test
+subroutine pi_test
+
+  use calc_pi, only : pi_calc
+  use pfunit_mod
+
+  integer :: n_steps
+  real(8) :: pi, pi_expected
+
+  real(dp) :: toler = 1D-14
+
+  continue
+
+  pi_expected = acos(-1.0_8)
+
+  pi_calc( n_steps, pi )
+
+  @assertEqual(pi_expected, pi, toler)
+
+end subroutine pi_test
