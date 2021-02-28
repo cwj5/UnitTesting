@@ -1,0 +1,11 @@
+BasedOnStyle: Google
+BinPackArguments: false
+BinPackParameters: false
+FixNamespaceComments: false
+NamespaceIndentation: Inner
+PointerAlignment: Left
+DerivePointerAlignment: false
+AccessModifierOffset: -2
+ColumnLimit: 120
+IndentWidth: 4
+SortIncludes: false
