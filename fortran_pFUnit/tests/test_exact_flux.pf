@@ -10,7 +10,7 @@ subroutine exact_wall_test
   use set_constants,   only : one, three
   use fluid_constants, only : gamma, set_fluid_constants
   use fluxes,          only : flux_exact
-  use pfunit_mod
+  use pfunit
 
   real(dp), dimension(3) :: q, flux_expected, flux
 
@@ -44,7 +44,7 @@ subroutine exact_l_supersonic_test
   use set_constants,   only : one, three
   use fluid_constants, only : gamma, set_fluid_constants
   use fluxes,          only : flux_exact
-  use pfunit_mod
+  use pfunit
 
   real(dp), dimension(3) :: q, flux_expected, flux
   real(dp) :: toler = 1D-14
